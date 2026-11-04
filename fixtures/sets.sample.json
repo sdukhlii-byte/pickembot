@@ -1,0 +1,75 @@
+{
+  "_note": "Sample of the shape the bot normalizes. Times like now+90 are minutes from now (fixture only). Teams and picks are fictional test data.",
+  "sets": [
+    {
+      "id": "cs2-001",
+      "game": "cs2",
+      "match": { "team_a": "Team Alpha", "team_b": "Team Bravo", "tournament": "Test Cup", "start_time": "now+90" },
+      "models": [
+        { "name": "Model 1", "pick": "Team Alpha", "rationale": "Stronger recent form on Mirage and Ancient." },
+        { "name": "Model 2", "pick": "Team Alpha", "rationale": "Won 4 of the last 5 head-to-head maps." },
+        { "name": "Model 3", "pick": "Team Alpha", "rationale": "Deeper map pool, Bravo bans are predictable." },
+        { "name": "Model 4", "pick": "Team Bravo", "rationale": "Bravo's AWPer is in peak form this month." }
+      ]
+    },
+    {
+      "id": "cs2-002",
+      "game": "cs2",
+      "match": { "team_a": "Team Charlie", "team_b": "Team Delta", "tournament": "Test Cup", "start_time": "now+300" },
+      "models": [
+        { "name": "Model 1", "pick": "Team Delta", "rationale": "Delta's T-side rounds are well above average." },
+        { "name": "Model 2", "pick": "Team Delta", "rationale": "Charlie played three days in a row." },
+        { "name": "Model 3", "pick": "Team Charlie", "rationale": "Charlie is better on the likely decider map." }
+      ]
+    },
+    {
+      "id": "cs2-003",
+      "game": "cs2",
+      "match": { "team_a": "Team Echo", "team_b": "Team Foxtrot", "tournament": "Test Cup", "start_time": "now+400" },
+      "models": [
+        { "name": "Model 1", "pick": "Team Echo", "rationale": "This one needs a human because data is thin." },
+        { "name": "Model 2", "pick": "Team Foxtrot", "rationale": "Coin flip." }
+      ]
+    },
+    {
+      "id": "dota-001",
+      "game": "dota2",
+      "match": { "team_a": "Team Golf", "team_b": "Team Hotel", "tournament": "Test League", "start_time": "now+120" },
+      "models": [
+        { "name": "Model 1", "pick": "Team Golf", "rationale": "Better draft win rate on the current patch." },
+        { "name": "Model 2", "pick": "Team Golf", "rationale": "Hotel struggles in late game." },
+        { "name": "Model 3", "pick": "Team Golf", "rationale": "Golf won the group stage meeting." }
+      ]
+    },
+    {
+      "id": "val-001",
+      "game": "valorant",
+      "match": { "team_a": "Team India", "team_b": "Team Juliet", "tournament": "Test Masters", "start_time": "now+200" },
+      "models": [
+        { "name": "Model 1", "pick": "Team Juliet", "rationale": "Juliet's duelist has the best ACS in the event." },
+        { "name": "Model 2", "pick": "Team Juliet", "rationale": "India lost both maps on Lotus this split." },
+        { "name": "Model 3", "pick": "Team India", "rationale": "India adapts better after pistol losses." }
+      ]
+    },
+    {
+      "id": "cs2-old-1",
+      "game": "cs2",
+      "match": { "team_a": "Team Kilo", "team_b": "Team Lima", "tournament": "Test Cup", "start_time": "now-1500" },
+      "models": [
+        { "name": "Model 1", "pick": "Team Kilo", "rationale": "Form." },
+        { "name": "Model 2", "pick": "Team Kilo", "rationale": "H2H." }
+      ],
+      "result": { "status": "graded", "score": "2:0", "winner": "Team Kilo", "correct": true }
+    },
+    {
+      "id": "cs2-old-2",
+      "game": "cs2",
+      "match": { "team_a": "Team Mike", "team_b": "Team November", "tournament": "Test Cup", "start_time": "now-1300" },
+      "models": [
+        { "name": "Model 1", "pick": "Team Mike", "rationale": "Form." },
+        { "name": "Model 2", "pick": "Team Mike", "rationale": "Maps." }
+      ],
+      "result": { "status": "graded", "score": "1:2", "winner": "Team November", "correct": false }
+    }
+  ]
+}
