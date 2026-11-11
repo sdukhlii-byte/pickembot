@@ -37,8 +37,21 @@ const config = {
 
   communityUrl: opt('COMMUNITY_URL', 'https://t.me/thecoinplay'),
 
+  // Coinplay official socials (row of small buttons under the main three). SOCIALS=off hides them.
+  socials: {
+    enabled: opt('SOCIALS', 'on').toLowerCase() !== 'off',
+    x: opt('SOCIAL_X', 'https://x.com/thecoinplay'),
+    threads: opt('SOCIAL_THREADS', 'https://www.threads.com/@coinplayofficial'),
+    instagram: opt('SOCIAL_INSTAGRAM', 'https://www.instagram.com/coinplayofficial/'),
+    youtube: opt('SOCIAL_YOUTUBE', 'https://www.youtube.com/@hello-coinplay'),
+    discord: opt('SOCIAL_DISCORD', 'https://discord.gg/D3Mc4PRnE'),
+    support: opt('SOCIAL_SUPPORT', 'https://t.me/Coinplay_Help'),
+  },
+
   // Welcome video: Telegram file_id, https URL, or empty (then assets/welcome.mp4 is used if it exists)
   welcomeVideo: opt('WELCOME_VIDEO'),
+  // Welcome cover picture (used when there is no video): file_id, https URL, or assets/welcome.png
+  welcomePhoto: opt('WELCOME_PHOTO'),
 
   // Button labels and colors (primary = blue, danger = red, success = green, none = default gray)
   buttons: {
@@ -60,6 +73,7 @@ const config = {
   dataDir: opt('DATA_DIR', '/data'),
   offerFile: path.join(__dirname, '..', 'offer', 'welcome.html'),
   localVideo: path.join(__dirname, '..', 'assets', 'welcome.mp4'),
+  localPhoto: path.join(__dirname, '..', 'assets', 'welcome.png'),
 };
 
 module.exports = config;

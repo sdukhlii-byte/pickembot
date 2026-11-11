@@ -26,9 +26,12 @@ function get(port, p) {
   });
 }
 
-test('keyboard: 3 buttons with correct types and styles', () => {
+test('keyboard: 3 main buttons + socials rows with correct types and styles', () => {
   const kb = buildKeyboard(config, 42);
-  const [[play], [web], [comm]] = kb.inline_keyboard;
+  const [[play], [web], [comm], socials1, socials2] = kb.inline_keyboard;
+  assert.deepStrictEqual(socials1.map((b) => b.text), ['X', 'Threads', 'Instagram']);
+  assert.deepStrictEqual(socials2.map((b) => b.text), ['YouTube', 'Discord', 'Support']);
+  assert.strictEqual(socials2[2].url, 'https://t.me/Coinplay_Help');
   assert.strictEqual(play.web_app.url, 'https://bot.example/r?c=42&m=app');
   assert.strictEqual(play.style, 'primary');
   assert.strictEqual(web.url, 'https://bot.example/r?c=42&m=web');

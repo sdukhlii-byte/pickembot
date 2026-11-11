@@ -29,10 +29,10 @@ function startUpdate(payload) {
   };
 }
 
-async function run(videoEnv) {
+async function run(videoEnv, localPhoto = '/nonexistent') {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cpbot-'));
   const db = openDb(dir);
-  const cfg = { ...config, welcomeVideo: videoEnv, localVideo: '/nonexistent' };
+  const cfg = { ...config, welcomeVideo: videoEnv, welcomePhoto: '', localVideo: '/nonexistent', localPhoto };
   const bot = createBot(cfg, db);
   bot.botInfo = { id: 1, is_bot: true, username: 'cpbot', first_name: 'cp' };
   const calls = [];
@@ -40,7 +40,7 @@ async function run(videoEnv) {
   const orig = Telegram.prototype.callApi;
   Telegram.prototype.callApi = async function (method, data) {
     calls.push({ method, data });
-    return { message_id: 2, video: { file_id: 'FILEID123' } };
+    return { message_id: 2, video: { file_id: 'FILEID123' }, photo: [{ file_id: 'SMALL' }, { file_id: 'PHOTOID1' }] };
   };
   try {
     await bot.handleUpdate(startUpdate('users_de_x'));
@@ -56,7 +56,10 @@ test('/start with video: sendVideo + HTML caption + keyboard, user saved, file_i
   assert.strictEqual(calls[0].method, 'sendVideo');
   assert.strictEqual(calls[0].data.parse_mode, 'HTML');
   assert.ok(calls[0].data.caption.includes('<blockquote>'));
-  assert.strictEqual(calls[0].data.reply_markup.inline_keyboard.length, 3);
+  assert.ok(!calls[0].data.caption.includes('[['), 'no placeholders left');
+  assert.ok(calls[0].data.caption.length <= 1024, 'fits video caption limit');
+  assert.ok(!/free/i.test(calls[0].data.caption), 'marketing rule: no "free"');
+  assert.strictEqual(calls[0].data.reply_markup.inline_keyboard.length, 5);
   assert.strictEqual(db.getKv('welcome_video_file_id'), 'FILEID123');
   assert.strictEqual(db.raw.prepare('SELECT start_param FROM users WHERE telegram_id = 7').get().start_param, 'users_de_x');
 });
@@ -65,4 +68,13 @@ test('/start without video: plain message with keyboard', async () => {
   const { calls } = await run('');
   assert.strictEqual(calls[0].method, 'sendMessage');
   assert.strictEqual(calls[0].data.reply_markup.inline_keyboard[0][0].style, 'primary');
+});
+
+test('/start with only the cover picture: sendPhoto with caption + keyboard, file_id cached', async () => {
+  const { calls, db } = await run('', path.join(__dirname, '..', 'assets', 'welcome.png'));
+  assert.strictEqual(calls[0].method, 'sendPhoto');
+  assert.ok(calls[0].data.caption.includes('<blockquote>'));
+  assert.ok(calls[0].data.caption.length <= 1024);
+  assert.strictEqual(calls[0].data.reply_markup.inline_keyboard.length, 5);
+  assert.strictEqual(db.getKv('welcome_photo_file_id'), 'PHOTOID1');
 });

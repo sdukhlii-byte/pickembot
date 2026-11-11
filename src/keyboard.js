@@ -34,6 +34,20 @@ function buildKeyboard(cfg, telegramId) {
 
   rows.push([withStyle({ text: b.community.text, url: cfg.communityUrl }, b.community.style)]);
 
+  if (cfg.socials && cfg.socials.enabled) {
+    const so = cfg.socials;
+    rows.push([
+      { text: 'X', url: so.x },
+      { text: 'Threads', url: so.threads },
+      { text: 'Instagram', url: so.instagram },
+    ]);
+    rows.push([
+      { text: 'YouTube', url: so.youtube },
+      { text: 'Discord', url: so.discord },
+      { text: 'Support', url: so.support },
+    ]);
+  }
+
   return { inline_keyboard: rows };
 }
 
