@@ -1,17 +1,17 @@
 {
-  "name": "esports-pickem-bot",
+  "name": "coinplay-welcome-bot",
   "version": "1.0.0",
-  "description": "Esports Pick'em vs AI by Coinplay — Telegram gasket bot: user picks winners, compares with AI models, streaks and weekly top -> Coinplay (reg/FTD postbacks)",
+  "description": "Telegram welcome bot for the Coinplay offer (video + bonuses + Play / Play on the web / Join community). Railway-ready.",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "node test/run.js"
+    "test": "node --test test/smoke.test.js test/bot.test.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "dependencies": {
-    "better-sqlite3": "^11.3.0",
+    "better-sqlite3": "^11.5.0",
     "express": "^4.21.0",
     "telegraf": "^4.16.3"
   }

@@ -1,30 +1,65 @@
+'use strict';
+
 const path = require('path');
 
-function list(v) {
-  return (v || '').split(',').map((s) => s.trim()).filter(Boolean);
+function req(name) {
+  const v = (process.env[name] || '').trim();
+  if (!v) throw new Error(`Missing required env var ${name}`);
+  return v;
+}
+
+function opt(name, def = '') {
+  const v = (process.env[name] || '').trim();
+  return v || def;
+}
+
+function trimSlash(s) {
+  return s.replace(/\/+$/, '');
+}
+
+// Railway gives RAILWAY_PUBLIC_DOMAIN automatically when a public domain is generated.
+function resolvePublicUrl() {
+  const explicit = opt('PUBLIC_URL');
+  if (explicit) return trimSlash(explicit);
+  const railway = opt('RAILWAY_PUBLIC_DOMAIN');
+  if (railway) return `https://${railway}`;
+  return '';
 }
 
 const config = {
-  botToken: process.env.BOT_TOKEN || '',
-  adminIds: list(process.env.ADMIN_IDS).map(Number),
-  channelUsername: (process.env.CHANNEL_USERNAME || 'coinplayesportai').replace(/^@/, ''),
-  publicUrl: (process.env.PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, ''),
-  port: Number(process.env.PORT || 3000),
+  botToken: req('BOT_TOKEN'),
+  port: Number(opt('PORT', '3000')),
+  publicUrl: resolvePublicUrl(),
 
-  setsUrl: process.env.SETS_URL || '',
-  setsToken: process.env.SETS_TOKEN || '',
-  setsMock: process.env.SETS_MOCK === '1' || !process.env.SETS_URL,
+  // Coinplay affiliate link. The bot appends click_id=<telegram_id> when redirecting.
+  coinplayLink: req('COINPLAY_LINK'),
+  clickParam: opt('CLICK_PARAM', 'click_id'),
 
-  coinplayLink: process.env.COINPLAY_LINK || 'https://coinplay.com/',
-  postbackSecret: process.env.POSTBACK_SECRET || '',
+  communityUrl: opt('COMMUNITY_URL', 'https://t.me/thecoinplay'),
 
-  bonusText: process.env.BONUS_TEXT || '[bonus, wager, term, min deposit]',
-  coinsText: process.env.COINS_TEXT || 'USDT, BTC, ETH',
+  // Welcome video: Telegram file_id, https URL, or empty (then assets/welcome.mp4 is used if it exists)
+  welcomeVideo: opt('WELCOME_VIDEO'),
 
-  dbPath: process.env.DB_PATH || path.join(__dirname, '..', 'data', 'bot.sqlite'),
-  tickSeconds: Number(process.env.TICK_SECONDS || 60),
+  // Button labels and colors (primary = blue, danger = red, success = green, none = default gray)
+  buttons: {
+    play: { text: opt('BTN_PLAY_TEXT', 'Play'), style: opt('BTN_PLAY_STYLE', 'primary') },
+    web: { text: opt('BTN_WEB_TEXT', 'Play on the web'), style: opt('BTN_WEB_STYLE', 'danger') },
+    community: { text: opt('BTN_COMMUNITY_TEXT', 'Join community!'), style: opt('BTN_COMMUNITY_STYLE', 'none') },
+  },
+
+  // Optional secret for the postback endpoint: /postback/coinplay?secret=...
+  postbackSecret: opt('POSTBACK_SECRET'),
+
+  adminIds: opt('ADMIN_IDS')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map(Number),
+
+  // Railway volume is mounted at /data
+  dataDir: opt('DATA_DIR', '/data'),
+  offerFile: path.join(__dirname, '..', 'offer', 'welcome.html'),
+  localVideo: path.join(__dirname, '..', 'assets', 'welcome.mp4'),
 };
-
-config.channelUrl = `https://t.me/${config.channelUsername}`;
 
 module.exports = config;

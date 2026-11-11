@@ -1,36 +1,54 @@
-const express = require('express');
+'use strict';
 
-function createServer({ funnel, db, config }) {
+const express = require('express');
+const { withClickId } = require('./keyboard');
+
+function createServer(cfg, db) {
   const app = express();
   app.disable('x-powered-by');
 
-  app.get('/health', (_req, res) => res.json({ ok: true }));
+  app.get('/', (_req, res) => res.status(200).send('ok'));
+  app.get('/health', (_req, res) => res.status(200).json({ ok: true }));
 
-  // Click redirect: /r?u=<telegram_id>&m=<match_id>&s=<message code>
+  // Click tracking + redirect to the Coinplay offer with click_id=<telegram_id>
   app.get('/r', (req, res) => {
-    const u = String(req.query.u || '');
-    if (!/^\d{1,15}$/.test(u)) return res.redirect(302, config.coinplayLink);
-    const target = funnel.onClick(u, {
-      matchId: String(req.query.m || '').slice(0, 64),
-      msg: String(req.query.s || '').slice(0, 32),
-    });
-    return res.redirect(302, target);
+    const id = Number(req.query.c);
+    const mode = req.query.m === 'app' ? 'play_app' : 'play_web';
+
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      return res.redirect(302, cfg.coinplayLink);
+    }
+    try {
+      db.addClick(id, mode);
+    } catch (e) {
+      console.error('[r] click log failed:', e.message);
+    }
+    res.set('Cache-Control', 'no-store');
+    return res.redirect(302, withClickId(cfg, id));
   });
 
-  // Coinplay S2S postback:
-  // /postback/coinplay?click_id={click_id}&event={reg|ftd}&secret=<POSTBACK_SECRET>
-  const postback = (req, res) => {
-    const q = { ...req.query, ...(req.body || {}) };
-    if (config.postbackSecret && q.secret !== config.postbackSecret) {
-      db.logEvent(null, 'pb_bad_secret', { ip: req.ip });
-      return res.status(403).json({ ok: false });
+  // Affiliate postback: /postback/coinplay?click_id=123&event=reg&secret=...
+  // Configure the same URL in the Coinplay affiliate panel for each event (reg, ftd).
+  // Macros in the panel are replaced by their system, e.g. click_id={click_id}&event=reg
+  app.get('/postback/coinplay', (req, res) => {
+    if (cfg.postbackSecret && req.query.secret !== cfg.postbackSecret) {
+      return res.status(403).send('forbidden');
     }
-    const event = q.event || q.status || q.type;
-    const result = funnel.onPostback(q.click_id || q.clickid || q.subid, event);
-    return res.json(result);
-  };
-  app.get('/postback/coinplay', postback);
-  app.post('/postback/coinplay', express.urlencoded({ extended: false }), express.json(), postback);
+    const id = Number(req.query.click_id);
+    const event = String(req.query.event || '').toLowerCase().slice(0, 32);
+
+    if (!Number.isSafeInteger(id) || id <= 0 || !event) {
+      return res.status(400).send('bad request');
+    }
+    const { secret, ...payload } = req.query; // never store the secret
+    try {
+      db.addEvent(id, event, payload);
+    } catch (e) {
+      console.error('[postback] failed:', e.message);
+      return res.status(500).send('error');
+    }
+    return res.status(200).send('ok');
+  });
 
   return app;
 }
