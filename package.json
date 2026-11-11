@@ -8,7 +8,7 @@
     "test": "node --test test/smoke.test.js test/bot.test.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "dependencies": {
     "better-sqlite3": "^11.5.0",
